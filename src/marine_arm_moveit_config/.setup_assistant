@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: marine_arm_description
+    relative_path: urdf/marine_arm.urdf.xacro
+  srdf:
+    relative_path: config/marine_arm.srdf
+  package_settings:
+    author_name: ykb
+    author_email: 1350943411@qq.com
+    generated_timestamp: 1780137260
