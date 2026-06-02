@@ -18,6 +18,7 @@ arm_controller:
       - elbow_pitch_joint
       - wrist_pitch_joint
     command_interfaces:
-      []
+      - position
     state_interfaces:
-      []
+      - position
+      - velocity

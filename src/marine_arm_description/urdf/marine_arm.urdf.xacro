@@ -120,7 +120,7 @@
 
     <ros2_control name="GazeboSystem" type="system">
         <hardware>
-            <plugin>mock_components/GazeboSystem</plugin>
+            <plugin>mock_components/GenericSystem</plugin>
         </hardware>
 
         <xacro:macro name="configure_joint" params="joint_name">
