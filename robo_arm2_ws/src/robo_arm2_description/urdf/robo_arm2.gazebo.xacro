@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="robo_arm2_gazebo">
+
+    <!-- Gazebo material colors -->
+    <gazebo reference="base_link">
+      <material>
+        <ambient>0.3 0.3 0.3 1.0</ambient>
+        <diffuse>0.3 0.3 0.3 1.0</diffuse>
+      </material>
+    </gazebo>
+
+    <gazebo reference="pillar_link">
+      <material>
+        <ambient>0.3 0.3 0.3 1.0</ambient>
+        <diffuse>0.3 0.3 0.3 1.0</diffuse>
+      </material>
+    </gazebo>
+
+    <gazebo reference="link1">
+      <material>
+        <ambient>0.0 0.0 0.8 1.0</ambient>
+        <diffuse>0.0 0.0 0.8 1.0</diffuse>
+      </material>
+    </gazebo>
+
+    <gazebo reference="link2">
+      <material>
+        <ambient>1.0 0.5 0.0 1.0</ambient>
+        <diffuse>1.0 0.5 0.0 1.0</diffuse>
+      </material>
+    </gazebo>
+
+    <gazebo reference="link3">
+      <material>
+        <ambient>0.0 0.8 0.0 1.0</ambient>
+        <diffuse>0.0 0.8 0.0 1.0</diffuse>
+      </material>
+    </gazebo>
+
+    <gazebo reference="end_effector">
+      <material>
+        <ambient>0.8 0.0 0.0 1.0</ambient>
+        <diffuse>0.8 0.0 0.0 1.0</diffuse>
+      </material>
+    </gazebo>
+
+    <!-- JointPositionController plugins for Gazebo Garden -->
+    <!-- Using custom topic names that are valid for both ROS 2 and Gazebo Transport -->
+    <gazebo>
+      <plugin filename="gz-sim-joint-position-controller-system"
+              name="gz::sim::systems::JointPositionController">
+        <joint_name>joint1</joint_name>
+        <topic>/robo_arm2/joint1/cmd_pos</topic>
+        <p_gain>100.0</p_gain>
+        <i_gain>0.0</i_gain>
+        <d_gain>10.0</d_gain>
+      </plugin>
+      <plugin filename="gz-sim-joint-position-controller-system"
+              name="gz::sim::systems::JointPositionController">
+        <joint_name>joint2</joint_name>
+        <topic>/robo_arm2/joint2/cmd_pos</topic>
+        <p_gain>100.0</p_gain>
+        <i_gain>0.0</i_gain>
+        <d_gain>10.0</d_gain>
+      </plugin>
+      <plugin filename="gz-sim-joint-position-controller-system"
+              name="gz::sim::systems::JointPositionController">
+        <joint_name>joint3</joint_name>
+        <topic>/robo_arm2/joint3/cmd_pos</topic>
+        <p_gain>50.0</p_gain>
+        <i_gain>0.0</i_gain>
+        <d_gain>5.0</d_gain>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system"
+              name="gz::sim::systems::JointStatePublisher">
+        <update_rate>50</update_rate>
+      </plugin>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>
