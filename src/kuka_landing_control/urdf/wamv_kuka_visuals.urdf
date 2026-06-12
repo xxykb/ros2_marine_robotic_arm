@@ -1,0 +1,127 @@
+<robot name="wamv">
+  <link name="world" />
+  <link name="wamv/base_link">
+    <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V-Base.dae" />
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="180.0" />
+      <inertia ixx="120" ixy="0" ixz="0" iyy="393" iyz="0" izz="446" />
+    </inertial>
+  <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/kuka_fortec_support/share/kuka_fortec_support/meshes/kr600_r2830/visual/base_link.dae" />
+      </geometry>
+      <origin rpy="0.0 -0.0 0.0" xyz="0.0 0.0 0.0" />
+    </visual>
+  <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/kuka_fortec_support/share/kuka_fortec_support/meshes/kr600_r2830/visual/link_1.dae" />
+      </geometry>
+      <origin rpy="-3.141592653589793 0.0 -0.0" xyz="0.0 -4.898587196589413e-17 0.4" />
+    </visual>
+  <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/kuka_fortec_support/share/kuka_fortec_support/meshes/kr600_r2830/visual/link_2.dae" />
+      </geometry>
+      <origin rpy="1.5707963267948968 -0.0 1.5707963267948966" xyz="-1.045 -0.49999999999999994 1.1297366722134329e-16" />
+    </visual>
+  <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/kuka_fortec_support/share/kuka_fortec_support/meshes/kr600_r2830/visual/link_3.dae" />
+      </geometry>
+      <origin rpy="1.5707963267948968 -0.0 -0.0" xyz="-0.5000000000000001 2.345 1.1297366722134334e-16" />
+    </visual>
+  <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/kuka_fortec_support/share/kuka_fortec_support/meshes/kr600_r2830/visual/link_4.dae" />
+      </geometry>
+      <origin rpy="1.8369701987210297e-16 1.5707963267948966 0.0" xyz="-2.29 4.7822457506704105e-17 1.0639999999999998" />
+    </visual>
+  <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/kuka_fortec_support/share/kuka_fortec_support/meshes/kr600_r2830/visual/link_5.dae" />
+      </geometry>
+      <origin rpy="1.5707963267948968 -3.749399456654644e-33 -6.123233995736766e-17" xyz="-1.525 2.29 9.79717439317831e-19" />
+    </visual>
+  <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/kuka_fortec_support/share/kuka_fortec_support/meshes/kr600_r2830/visual/link_6.dae" />
+      </geometry>
+      <origin rpy="1.2246467991473532e-16 1.5707963267948966 0.0" xyz="-2.2900000000000005 -1.1015697958330443e-16 1.8149999999999997" />
+    </visual>
+  <collision name="dummy_for_physics"><origin xyz="0 0 0.5" rpy="0 0 0" /><geometry><box size="0.1 0.1 0.1" /></geometry></collision></link>
+  <joint name="world_to_wamv" type="fixed">
+    <parent link="world" />
+    <child link="wamv/base_link" />
+    <origin rpy="0 0 0" xyz="0 0 0" />
+  </joint>
+  <gazebo reference="wamv/base_link">
+    <enable_wind>true</enable_wind>
+    <visual>
+      <material>
+        <pbr>
+          <metal>
+            <albedo_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Albedo.png</albedo_map>
+            <normal_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Normal.png</normal_map>
+            <roughness_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Roughness.png</roughness_map>
+            <metalness_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Metalness.png</metalness_map>
+          </metal>
+        </pbr>
+      </material>
+    </visual>
+  </gazebo>
+  
+  <gazebo>
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>wamv/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.6 1.03 0</point>
+        <point>-1.4 1.03 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave>
+          <model>PMS</model>
+          <amplitude>0.5</amplitude>
+          <period>7.0</period>
+          <gain>0.7</gain>
+          <steepness>0.5</steepness>
+          <number>3</number>
+          <scale>1.3</scale>
+          <angle>0.3</angle>
+          <tau>0.001</tau>
+        </wave>
+      </wavefield>
+    </plugin>
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>wamv/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.6 -1.03 0</point>
+        <point>-1.4 -1.03 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave>
+          <model>PMS</model>
+          <amplitude>0.5</amplitude>
+          <period>7.0</period>
+          <gain>0.7</gain>
+          <steepness>0.5</steepness>
+          <number>3</number>
+          <scale>1.3</scale>
+          <angle>0.3</angle>
+          <tau>0.001</tau>
+        </wave>
+      </wavefield>
+    </plugin>
+  </gazebo>
+  </robot>

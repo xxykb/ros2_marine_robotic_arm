@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!-- Local copy of wamv_base.urdf.xacro with model:// mesh paths for Gazebo compatibility -->
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="wam-v">
+  <xacro:arg name="namespace" default="wamv"/>
+  <xacro:property name="namespace" value="$(arg namespace)" scope="global" />
+
+  <xacro:macro name="main_collisions" params="prefix reflect:=1">
+    <collision name="${prefix}_float">
+      <origin xyz="-0.4 ${1.03*reflect} 0.2" rpy="${0*reflect} 1.57 0" />
+      <geometry>
+        <cylinder length="4" radius="0.2" />
+      </geometry>
+    </collision>
+    <collision name="${prefix}_mid_float">
+      <origin xyz="1.85 ${1.03*reflect} 0.3" rpy="${0*reflect} 1.38 0" />
+      <geometry>
+        <cylinder length="0.5" radius="0.17" />
+      </geometry>
+    </collision>
+    <collision name="${prefix}_front_float">
+      <origin xyz="2.3 ${1.03*reflect} 0.4" rpy="${0*reflect} 1.3 0" />
+      <geometry>
+        <cylinder length="0.45" radius="0.12" />
+      </geometry>
+    </collision>
+    <collision name="front_${prefix}_beam_lower">
+      <origin xyz="0.9 ${0.85*reflect} 1" rpy="${0.78*reflect} 0 0" />
+      <geometry>
+        <cylinder length="0.5" radius="0.04" />
+      </geometry>
+    </collision>
+    <collision name="front_${prefix}_beam_upper">
+      <origin xyz="0.9 ${0.6*reflect} 1.18" rpy="${1.35*reflect} 0 0" />
+      <geometry>
+        <cylinder length="0.2" radius="0.04" />
+      </geometry>
+    </collision>
+    <collision name="mid_${prefix}_beam_lower">
+      <origin xyz="-0.65 ${0.99*reflect} 0.7" rpy="${0.1*reflect} 0.25 0" />
+      <geometry>
+        <cylinder length="0.45" radius="0.03" />
+      </geometry>
+    </collision>
+    <collision name="mid_${prefix}_beam_medium">
+      <origin xyz="-0.57 ${0.87*reflect} 1.05" rpy="${0.75*reflect} 0.25 0" />
+      <geometry>
+        <cylinder length="0.32" radius="0.03" />
+      </geometry>
+    </collision>
+    <collision name="mid_${prefix}_beam_upper">
+      <origin xyz="-0.55 ${0.65*reflect} 1.17" rpy="${1.35*reflect} 0.25 0" />
+      <geometry>
+        <cylinder length="0.3" radius="0.03" />
+      </geometry>
+    </collision>
+    <collision name="rear_${prefix}_beam_lower">
+      <origin xyz="-0.74 ${1.03*reflect} 0.7" rpy="${0*reflect} -0.15 0" />
+      <geometry>
+        <cylinder length="0.45" radius="0.03" />
+      </geometry>
+    </collision>
+    <collision name="rear_${prefix}_beam_medium">
+      <origin xyz="-0.79 ${0.91*reflect} 1.05" rpy="${0.75*reflect} -0.15 0" />
+      <geometry>
+        <cylinder length="0.32" radius="0.03" />
+      </geometry>
+    </collision>
+    <collision name="rear_${prefix}_beam_upper">
+      <origin xyz="-0.81 ${0.67*reflect} 1.18" rpy="${1.45*reflect} -0.15 0" />
+      <geometry>
+        <cylinder length="0.3" radius="0.03" />
+      </geometry>
+    </collision>
+    <collision name="${prefix}_joint">
+      <origin xyz="0.58 ${1.03*reflect} 0.6" rpy="${0*reflect} -0.6 0" />
+      <geometry>
+        <box size="0.65 0.2 0.1" />
+      </geometry>
+    </collision>
+  </xacro:macro>
+
+  <!-- Resolve mesh path at xacro processing time so Gazebo gets an absolute path -->
+  <xacro:property name="wamv_mesh" value="$(find wamv_description)/models/WAM-V-Base/mesh/WAM-V-Base.dae"/>
+
+  <!-- Basic model of the 16' WAM-V USV -->
+  <link name="${namespace}/base_link">
+    <visual>
+      <geometry>
+        <mesh filename="${wamv_mesh}"/>
+      </geometry>
+    </visual>
+    <xacro:main_collisions prefix="left" reflect="1" />
+    <xacro:main_collisions prefix="right" reflect="-1" />
+    <collision name="top_base">
+      <origin xyz="0 -0 1.25" rpy="0 0 0" />
+      <geometry>
+        <box size="1.85 1 0.1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="180.0"/>
+      <inertia ixx="120.0" ixy="0.0" ixz="0.0" iyy="393" iyz="0.0" izz="446.0"/>
+    </inertial>
+  </link>
+
+  <xacro:property name="wamv_texture_dir" value="$(find wamv_description)/models/WAM-V-Base/mesh"/>
+
+  <gazebo>
+    <enable_wind>true</enable_wind>
+  </gazebo>
+
+  <gazebo reference="${namespace}/base_link">
+    <visual>
+      <material>
+        <diffuse>1.0 1.0 1.0</diffuse>
+        <specular>1.0 1.0 1.0</specular>
+        <pbr>
+          <metal>
+            <albedo_map>file://${wamv_texture_dir}/WAM-V_Albedo.png</albedo_map>
+            <normal_map>file://${wamv_texture_dir}/WAM-V_Normal.png</normal_map>
+            <roughness_map>file://${wamv_texture_dir}/WAM-V_Roughness.png</roughness_map>
+            <metalness_map>file://${wamv_texture_dir}/WAM-V_Metalness.png</metalness_map>
+          </metal>
+        </pbr>
+      </material>
+    </visual>
+  </gazebo>
+
+</robot>

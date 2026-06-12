@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="simple_arm">
+  <!-- Simple 3-DOF arm: base(yaw) → shoulder(pitch) → elbow(pitch) -->
+
+  <link name="arm_base">
+    <visual>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <geometry><box size="0.3 0.3 0.2"/></geometry>
+      <material name="orange"><color rgba="1 0.5 0 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <geometry><box size="0.3 0.3 0.2"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <mass value="15"/>
+      <inertia ixx="0.2" ixy="0" ixz="0" iyy="0.2" iyz="0" izz="0.2"/>
+    </inertial>
+  </link>
+
+  <link name="arm_shoulder">
+    <visual>
+      <origin xyz="0 0 0.2" rpy="0 0 0"/>
+      <geometry><cylinder length="0.4" radius="0.06"/></geometry>
+      <material name="yellow"><color rgba="1 1 0 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.2" rpy="0 0 0"/>
+      <geometry><cylinder length="0.4" radius="0.06"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.2" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.1" ixy="0" ixz="0" iyy="0.1" iyz="0" izz="0.02"/>
+    </inertial>
+  </link>
+
+  <link name="arm_elbow">
+    <visual>
+      <origin xyz="0 0 0.15" rpy="0 0 0"/>
+      <geometry><cylinder length="0.3" radius="0.04"/></geometry>
+      <material name="red"><color rgba="1 0 0 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.15" rpy="0 0 0"/>
+      <geometry><cylinder length="0.3" radius="0.04"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.15" rpy="0 0 0"/>
+      <mass value="3"/>
+      <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.02" iyz="0" izz="0.005"/>
+    </inertial>
+  </link>
+
+  <!-- Joint 1: base rotates around Z (yaw) -->
+  <joint name="arm_joint1" type="revolute">
+    <parent link="arm_base"/>
+    <child link="arm_shoulder"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="100" velocity="1.0"/>
+  </joint>
+
+  <!-- Joint 2: shoulder rotates around Y (pitch) -->
+  <joint name="arm_joint2" type="revolute">
+    <parent link="arm_shoulder"/>
+    <child link="arm_elbow"/>
+    <origin xyz="0 0 0.4" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.57" upper="1.57" effort="50" velocity="1.0"/>
+  </joint>
+
+  <!-- Tool tip visual (attached to elbow) -->
+  <link name="arm_tip">
+    <visual>
+      <geometry><sphere radius="0.03"/></geometry>
+      <material name="green"><color rgba="0 1 0 1"/></material>
+    </visual>
+  </link>
+
+  <joint name="arm_joint3" type="fixed">
+    <parent link="arm_elbow"/>
+    <child link="arm_tip"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+  </joint>
+</robot>

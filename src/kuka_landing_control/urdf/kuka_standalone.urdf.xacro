@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!-- Standalone KUKA KR 600 R2830 — minimal mass, spawned separately from WAM-V -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="kuka_kr600">
+
+  <xacro:include filename="$(find kuka_fortec_support)/urdf/kr600_r2830_macro.xacro"/>
+  <xacro:include filename="$(find kuka_fortec_support)/urdf/kr_fortec_ros2_control_macro.xacro"/>
+
+  <xacro:kuka_kr600_r2830_robot prefix="" package_name="kuka_fortec_support"/>
+
+  <xacro:kuka_fortec_ros2_control
+    name="kr600_r2830"
+    driver_version="rsi_only"
+    client_ip="0.0.0.0" client_port="59152"
+    mxa_client_port="1337" controller_ip="0.0.0.0"
+    prefix="" mode="mock" use_gpio="false"
+    roundtrip_time="0" verify_robot_model="false">
+    <ext_axes_ros2_control_joints/>
+  </xacro:kuka_fortec_ros2_control>
+
+  <!-- world link (dummy, massless) -->
+  <link name="world"/>
+
+  <!-- Attach KUKA to world at WAM-V deck height -->
+  <joint name="world_to_kuka" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+</robot>

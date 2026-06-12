@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!-- Minimal WAM-V — no artificial links, pure free body for DART stability -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="wamv_light">
+  <xacro:arg name="namespace" default="wamv"/>
+  <xacro:property name="namespace" value="$(arg namespace)" scope="global"/>
+
+  <xacro:property name="wamv_mesh" value="$(find wamv_description)/models/WAM-V-Base/mesh/WAM-V-Base.dae"/>
+  <xacro:property name="tex_dir" value="$(find wamv_description)/models/WAM-V-Base/mesh"/>
+
+  <link name="${namespace}/base_link">
+    <visual>
+      <geometry><mesh filename="${wamv_mesh}"/></geometry>
+    </visual>
+    <collision name="float_left">
+      <origin xyz="-0.4 1.03 0.2" rpy="0 1.57 0"/>
+      <geometry><cylinder length="4" radius="0.2"/></geometry>
+    </collision>
+    <collision name="float_right">
+      <origin xyz="-0.4 -1.03 0.2" rpy="0 1.57 0"/>
+      <geometry><cylinder length="4" radius="0.2"/></geometry>
+    </collision>
+    <collision name="deck">
+      <origin xyz="0 0 1.25" rpy="0 0 0"/>
+      <geometry><box size="1.85 1 0.1"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="180.0"/>
+      <inertia ixx="120" ixy="0" ixz="0" iyy="393" iyz="0" izz="446"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="${namespace}/base_link">
+    <enable_wind>true</enable_wind>
+    <visual>
+      <material>
+        <diffuse>1 1 1</diffuse>
+        <specular>1 1 1</specular>
+        <pbr><metal>
+          <albedo_map>file://${tex_dir}/WAM-V_Albedo.png</albedo_map>
+          <normal_map>file://${tex_dir}/WAM-V_Normal.png</normal_map>
+          <roughness_map>file://${tex_dir}/WAM-V_Roughness.png</roughness_map>
+          <metalness_map>file://${tex_dir}/WAM-V_Metalness.png</metalness_map>
+        </metal></pbr>
+      </material>
+    </visual>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="libSurface.so" name="vrx::S1">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length><hull_radius>0.213</hull_radius><fluid_level>0</fluid_level>
+      <points><point>0.6 1.03 0</point><point>-1.4 1.03 0</point></points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave><model>PMS</model><amplitude>1.6</amplitude><period>7.0</period><gain>0.7</gain>
+             <steepness>0.5</steepness><number>5</number><scale>1.3</scale><angle>0.3</angle><tau>0.1</tau></wave>
+      </wavefield>
+    </plugin>
+    <plugin filename="libSurface.so" name="vrx::S2">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length><hull_radius>0.213</hull_radius><fluid_level>0</fluid_level>
+      <points><point>0.6 -1.03 0</point><point>-1.4 -1.03 0</point></points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave><model>PMS</model><amplitude>1.6</amplitude><period>7.0</period><gain>0.7</gain>
+             <steepness>0.5</steepness><number>5</number><scale>1.3</scale><angle>0.3</angle><tau>0.1</tau></wave>
+      </wavefield>
+    </plugin>
+    <plugin filename="libSimpleHydrodynamics.so" name="vrx::Hydro">
+      <link_name>${namespace}/base_link</link_name>
+      <xDotU>0</xDotU><yDotV>0</yDotV><nDotR>0</nDotR>
+      <xU>100</xU><xUU>150</xUU><yV>100</yV><yVV>100</yVV>
+      <zW>500</zW><kP>300</kP><kPP>600</kPP><mQ>900</mQ><mQQ>900</mQQ><nR>800</nR><nRR>800</nRR>
+    </plugin>
+    <plugin filename="libUSVWind.so" name="vrx::Wind">
+      <wind_obj><name>wamv</name><link_name>${namespace}/base_link</link_name><coeff_vector>0.5 0.5 0.33</coeff_vector></wind_obj>
+      <wind_direction>240</wind_direction><wind_mean_velocity>12.0</wind_mean_velocity>
+      <var_wind_gain_constants>0.5</var_wind_gain_constants><var_wind_time_constants>2</var_wind_time_constants>
+    </plugin>
+  </gazebo>
+</robot>

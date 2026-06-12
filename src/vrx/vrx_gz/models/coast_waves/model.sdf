@@ -3,7 +3,7 @@
   <model name="waves">
     <static>true</static>
     <link name="link">
-      <visual name= "wave_visual">
+      <visual name="wave_visual">
         <geometry>
           <mesh>
             <uri>meshes/waterlow.dae</uri>
@@ -27,7 +27,10 @@
             <topic>/vrx/wavefield/parameters</topic>
           </wavefield>
         </plugin>
-        <visibility_flags>8</visibility_flags>
+        <!-- FIX: removed visibility_flags=8 that caused flickering.
+             Value 8 only matches render-pass bit 3; default GUI camera
+             uses mask 1. Mask 1 & 8 = 0 so water was invisible.
+             Default (no flag) = 0xFFFFFFFF, visible in all passes. -->
       </visual>
     </link>
   </model>

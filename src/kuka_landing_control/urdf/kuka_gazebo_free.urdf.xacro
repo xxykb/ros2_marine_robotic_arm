@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!-- KUKA KR600 static model for Gazebo (no world link, no physics simulation).
+     Model is marked <static> so it stays exactly where set_pose puts it.
+     pose_sync node moves it to track the WAM-V deck.
+     MoveIt uses a separate standalone URDF (kuka_standalone.urdf.xacro). -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="kuka_kr600">
+
+  <xacro:include filename="$(find kuka_fortec_support)/urdf/kr600_r2830_macro.xacro"/>
+  <xacro:kuka_kr600_r2830_robot prefix="" package_name="kuka_fortec_support"/>
+
+  <!-- No world link — this model is positioned entirely by pose_sync -->
+  <!-- Mark as static so DART skips physics simulation on this model -->
+
+  <gazebo>
+    <static>true</static>
+  </gazebo>
+
+</robot>

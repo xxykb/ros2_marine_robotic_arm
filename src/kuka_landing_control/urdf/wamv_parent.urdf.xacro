@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="wamv">
+  <xacro:arg name="namespace" default="wamv"/>
+  <xacro:property name="namespace" value="$(arg namespace)" scope="global"/>
+
+  <xacro:property name="wamv_mesh" value="$(find wamv_description)/models/WAM-V-Base/mesh/WAM-V-Base.dae"/>
+  <xacro:property name="tex_dir" value="$(find wamv_description)/models/WAM-V-Base/mesh"/>
+
+  <link name="${namespace}/base_link">
+    <visual>
+      <geometry><mesh filename="${wamv_mesh}"/></geometry>
+    </visual>
+    <!-- Collisions removed: buoyancy handled by Surface plugin directly -->
+    <inertial>
+      <mass value="180.0"/>
+      <inertia ixx="120" ixy="0" ixz="0" iyy="393" iyz="0" izz="446"/>
+    </inertial>
+  </link>
+
+  <gazebo reference="${namespace}/base_link">
+    <enable_wind>true</enable_wind>
+    <visual>
+      <material><pbr><metal>
+        <albedo_map>file://${tex_dir}/WAM-V_Albedo.png</albedo_map>
+        <normal_map>file://${tex_dir}/WAM-V_Normal.png</normal_map>
+        <roughness_map>file://${tex_dir}/WAM-V_Roughness.png</roughness_map>
+        <metalness_map>file://${tex_dir}/WAM-V_Metalness.png</metalness_map>
+      </metal></pbr></material>
+    </visual>
+  </gazebo>
+
+  <gazebo>
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length><hull_radius>0.213</hull_radius><fluid_level>0</fluid_level>
+      <points><point>0.6 1.03 0</point><point>-1.4 1.03 0</point></points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave><model>PMS</model><amplitude>0.5</amplitude><period>7.0</period><gain>0.7</gain><steepness>0.5</steepness><number>3</number><scale>1.3</scale><angle>0.3</angle><tau>0.001</tau></wave>
+      </wavefield>
+    </plugin>
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length><hull_radius>0.213</hull_radius><fluid_level>0</fluid_level>
+      <points><point>0.6 -1.03 0</point><point>-1.4 -1.03 0</point></points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave><model>PMS</model><amplitude>0.5</amplitude><period>7.0</period><gain>0.7</gain><steepness>0.5</steepness><number>3</number><scale>1.3</scale><angle>0.3</angle><tau>0.001</tau></wave>
+      </wavefield>
+    </plugin>
+    <!-- Hydrodynamics plugin disabled for debugging -->
+    <!-- Wind plugin disabled for debugging -->
+  </gazebo>
+</robot>

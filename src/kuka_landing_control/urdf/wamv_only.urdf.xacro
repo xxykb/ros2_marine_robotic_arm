@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!-- WAM-V vessel only — spawned as a standalone physics model with VRX dynamics plugins -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="wamv">
+  <xacro:arg name="namespace" default="wamv"/>
+  <xacro:property name="namespace" value="$(arg namespace)" scope="global"/>
+
+  <xacro:include filename="$(find kuka_landing_control)/urdf/wamv_base_local.urdf.xacro"/>
+
+  <!-- Dummy world link — gives DART a parent frame for bias force computation -->
+  <link name="world">
+    <inertial>
+      <mass value="0.001"/>
+      <inertia ixx="1e-9" ixy="0" ixz="0" iyy="1e-9" iyz="0" izz="1e-9"/>
+    </inertial>
+  </link>
+
+  <joint name="world_to_wamv" type="fixed">
+    <parent link="world"/>
+    <child link="${namespace}/base_link"/>
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+  </joint>
+
+  <!-- VRX dynamics plugins on the vessel -->
+  <gazebo>
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points><point>0.6 1.03 0</point><point>-1.4 1.03 0</point></points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave><model>PMS</model><amplitude>1.6</amplitude><period>7.0</period><gain>0.7</gain><steepness>0.5</steepness><number>5</number><scale>1.3</scale><angle>0.3</angle><tau>2.0</tau></wave>
+      </wavefield>
+    </plugin>
+    <plugin filename="libSurface.so" name="vrx::Surface2">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points><point>0.6 -1.03 0</point><point>-1.4 -1.03 0</point></points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave><model>PMS</model><amplitude>1.6</amplitude><period>7.0</period><gain>0.7</gain><steepness>0.5</steepness><number>5</number><scale>1.3</scale><angle>0.3</angle><tau>2.0</tau></wave>
+      </wavefield>
+    </plugin>
+    <plugin filename="libSimpleHydrodynamics.so" name="vrx::SimpleHydrodynamics">
+      <link_name>${namespace}/base_link</link_name>
+      <xDotU>0</xDotU><yDotV>0</yDotV><nDotR>0</nDotR>
+      <xU>100</xU><xUU>150</xUU><yV>100</yV><yVV>100</yVV>
+      <zW>500</zW><kP>300</kP><kPP>600</kPP><mQ>900</mQ><mQQ>900</mQQ><nR>800</nR><nRR>800</nRR>
+    </plugin>
+    <plugin filename="libUSVWind.so" name="vrx::USVWind">
+      <wind_obj><name>wamv</name><link_name>${namespace}/base_link</link_name><coeff_vector>0.5 0.5 0.33</coeff_vector></wind_obj>
+      <wind_direction>240</wind_direction><wind_mean_velocity>12.0</wind_mean_velocity>
+      <var_wind_gain_constants>0.5</var_wind_gain_constants><var_wind_time_constants>2</var_wind_time_constants>
+    </plugin>
+  </gazebo>
+</robot>

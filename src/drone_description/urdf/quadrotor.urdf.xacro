@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="quadrotor">
+
+  <xacro:property name="arm_length" value="0.25"/>
+  <xacro:property name="body_radius" value="0.12"/>
+  <xacro:property name="rotor_radius" value="0.1"/>
+  <xacro:property name="drone_mass" value="1.5"/>
+
+  <material name="drone_black">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+  <material name="drone_red">
+    <color rgba="0.9 0.2 0.2 1.0"/>
+  </material>
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder radius="${body_radius}" length="0.05"/>
+      </geometry>
+      <material name="drone_black"/>
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="${body_radius}" length="0.05"/>
+      </geometry>
+      <origin xyz="0 0 0.025" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="${drone_mass}"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.05"/>
+    </inertial>
+  </link>
+
+  <xacro:macro name="arm" params="name angle">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <cylinder radius="0.015" length="${arm_length * 2}"/>
+        </geometry>
+        <material name="drone_black"/>
+        <origin xyz="${arm_length} 0 0" rpy="0 ${pi/2} 0"/>
+      </visual>
+      <collision>
+        <geometry>
+          <cylinder radius="0.015" length="${arm_length * 2}"/>
+        </geometry>
+        <origin xyz="${arm_length} 0 0" rpy="0 ${pi/2} 0"/>
+      </collision>
+    </link>
+    <joint name="${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <origin xyz="0 0 0.05" rpy="0 0 ${angle}"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:arm name="arm_0" angle="0.7854"/>
+  <xacro:arm name="arm_1" angle="2.3562"/>
+  <xacro:arm name="arm_2" angle="-2.3562"/>
+  <xacro:arm name="arm_3" angle="-0.7854"/>
+
+  <xacro:macro name="rotor" params="name arm_link outer_offset">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <cylinder radius="${rotor_radius}" length="0.01"/>
+        </geometry>
+        <material name="drone_red"/>
+        <origin xyz="0 0 -0.005" rpy="0 0 0"/>
+      </visual>
+    </link>
+    <joint name="${name}_joint" type="fixed">
+      <parent link="${arm_link}"/>
+      <child link="${name}"/>
+      <origin xyz="${outer_offset * arm_length * 2 + 0.05} 0 0" rpy="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:rotor name="rotor_0" arm_link="arm_0" outer_offset="1.0"/>
+  <xacro:rotor name="rotor_1" arm_link="arm_1" outer_offset="1.0"/>
+  <xacro:rotor name="rotor_2" arm_link="arm_2" outer_offset="1.0"/>
+  <xacro:rotor name="rotor_3" arm_link="arm_3" outer_offset="1.0"/>
+
+  <gazebo>
+    <plugin filename="libignition-gazebo-odometry-publisher-system.so"
+            name="ignition::gazebo::systems::OdometryPublisher">
+      <odom_frame>world</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <odom_topic>/drone/odom</odom_topic>
+      <ground_truth_pose_topic>/drone/ground_truth_pose</ground_truth_pose_topic>
+    </plugin>
+  </gazebo>
+
+</robot>

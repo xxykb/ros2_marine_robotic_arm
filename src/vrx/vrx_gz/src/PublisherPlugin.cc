@@ -188,3 +188,5 @@ GZ_ADD_PLUGIN(PublisherPlugin,
 
 GZ_ADD_PLUGIN_ALIAS(vrx::PublisherPlugin,
                     "vrx::PublisherPlugin")
+GZ_ADD_PLUGIN_ALIAS(vrx::PublisherPlugin,
+                    "vrx::Pub")

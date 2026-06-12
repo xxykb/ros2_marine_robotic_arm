@@ -113,6 +113,7 @@ void Surface::Implementation::OnWavefield(const msgs::Param &_msg)
 {
   std::lock_guard<std::mutex> lock(this->mutex);
   this->wavefield.Load(_msg);
+
 }
 
 //////////////////////////////////////////////////
@@ -199,6 +200,8 @@ void Surface::Configure(const sim::Entity &_entity,
   // Subscribe to receive wavefield parameters.
   this->dataPtr->node.Subscribe(this->dataPtr->wavefield.Topic(),
     &Surface::Implementation::OnWavefield, this->dataPtr.get());
+
+  // Plugin configured
 }
 
 //////////////////////////////////////////////////
@@ -262,22 +265,9 @@ void Surface::PreUpdate(const sim::UpdateInfo &_info,
     this->dataPtr->link.AddWorldForce(_ecm,
       math::Vector3d(0, 0, kBuoyForce),
       bpnt);
-
-    // Debug output:
-    // gzdbg << bpnt.X() << "," << bpnt.Y() << "," << bpnt.Z() << std::endl;
-    // gzdbg << "depth: " << depth << std::endl;
-    // gzdbg << "dz: " << dz << std::endl;
-    // gzdbg << "kDdz: " << kDdz << std::endl;
-    // gzdbg << "deltaZ: " << deltaZ << std::endl;
-    // gzdbg << "hull radius: " << this->dataPtr->hullRadius << std::endl;
-    // gzdbg << "vehicle length: " << this->dataPtr->hullLength << std::endl;
-    // gzdbg << "gravity z: " << -this->dataPtr->gravity.Z() << std::endl;
-    // gzdbg << "fluid density: " << this->dataPtr->fluidDensity << std::endl;
-    // gzdbg << "Force: " << kBuoyForce << std::endl << std::endl;
   }
 }
 
-//////////////////////////////////////////////////
 math::Vector3d Surface::Gravity() const
 {
   return this->dataPtr->gravity;
@@ -315,3 +305,7 @@ GZ_ADD_PLUGIN(Surface,
 
 GZ_ADD_PLUGIN_ALIAS(vrx::Surface,
                     "vrx::Surface")
+GZ_ADD_PLUGIN_ALIAS(vrx::Surface,
+                    "vrx::S1")
+GZ_ADD_PLUGIN_ALIAS(vrx::Surface,
+                    "vrx::S2")

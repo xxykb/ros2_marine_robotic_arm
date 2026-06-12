@@ -363,3 +363,5 @@ GZ_ADD_PLUGIN(vrx::USVWind,
 
 GZ_ADD_PLUGIN_ALIAS(vrx::USVWind,
                     "vrx::USVWind")
+GZ_ADD_PLUGIN_ALIAS(vrx::USVWind,
+                    "vrx::Wind")

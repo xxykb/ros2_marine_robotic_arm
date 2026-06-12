@@ -1,0 +1,3 @@
+[submodule "src/kuka_robot_descriptions"]
+	path = src/kuka_robot_descriptions
+	url = https://github.com/kroshu/kuka_robot_descriptions.git

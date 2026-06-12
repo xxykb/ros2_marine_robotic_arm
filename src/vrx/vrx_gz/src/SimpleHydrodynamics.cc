@@ -291,3 +291,5 @@ GZ_ADD_PLUGIN(vrx::SimpleHydrodynamics,
 
 GZ_ADD_PLUGIN_ALIAS(vrx::SimpleHydrodynamics,
                     "vrx::SimpleHydrodynamics")
+GZ_ADD_PLUGIN_ALIAS(vrx::SimpleHydrodynamics,
+                    "vrx::Hydro")

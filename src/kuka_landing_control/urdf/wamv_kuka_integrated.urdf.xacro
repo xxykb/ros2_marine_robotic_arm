@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<!-- ============================================================
+     Integrated Model: WAM-V USV + KUKA KR 600 R2830
+     
+     The KUKA robot is mounted on the rear deck of the WAM-V vessel
+     serving as a drone landing platform. The end-effector stays 
+     below an approaching drone during autonomous landing.
+     ============================================================ -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="wamv_kuka_landing_platform">
+
+  <!-- ── WAM-V namespace arg ── -->
+  <xacro:arg name="namespace" default="wamv"/>
+  <xacro:property name="namespace" value="$(arg namespace)" scope="global"/>
+
+  <!-- ── KUKA arguments (passed through to kuka_fortec_support) ── -->
+  <xacro:arg name="driver_version" default="rsi_only"/>
+  <xacro:arg name="mode" default="hardware"/>
+  <xacro:arg name="use_gpio" default="false"/>
+  <xacro:arg name="roundtrip_time" default="0"/>
+  <xacro:arg name="client_ip" default="0.0.0.0"/>
+  <xacro:arg name="client_port" default="59152"/>
+  <xacro:arg name="mxa_client_port" default="1337"/>
+  <xacro:arg name="controller_ip" default="0.0.0.0"/>
+  <xacro:arg name="verify_robot_model" default="true"/>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PART 1: WAM-V Vessel
+       ════════════════════════════════════════════════════════════ -->
+
+  <!-- Include the WAM-V base macro (local copy with model:// paths for Gazebo) -->
+  <xacro:include filename="$(find kuka_landing_control)/urdf/wamv_base_local.urdf.xacro"/>
+
+  <!-- ════════════════════════════════════════════════════════════
+       PART 2: KUKA KR 600 R2830 Robot
+       ════════════════════════════════════════════════════════════ -->
+
+  <!-- Include KUKA robot macro and ros2_control macro -->
+  <xacro:include filename="$(find kuka_fortec_support)/urdf/kr600_r2830_macro.xacro"/>
+  <xacro:include filename="$(find kuka_fortec_support)/urdf/kr_fortec_ros2_control_macro.xacro"/>
+
+  <!-- Instantiate the robot (without prefix, so links are base_link, link_1...tool0) -->
+  <xacro:kuka_kr600_r2830_robot prefix="" package_name="kuka_fortec_support"/>
+
+  <!-- ros2_control for KUKA (mock hardware mode for simulation) -->
+  <xacro:kuka_fortec_ros2_control
+    name="kr600_r2830"
+    driver_version="$(arg driver_version)"
+    client_ip="$(arg client_ip)"
+    client_port="$(arg client_port)"
+    mxa_client_port="$(arg mxa_client_port)"
+    controller_ip="$(arg controller_ip)"
+    prefix=""
+    mode="$(arg mode)"
+    use_gpio="$(arg use_gpio)"
+    roundtrip_time="$(arg roundtrip_time)"
+    verify_robot_model="$(arg verify_robot_model)">
+    <ext_axes_ros2_control_joints/>
+  </xacro:kuka_fortec_ros2_control>
+
+  <!-- world link with small inertial to avoid DART NaN on free root chain -->
+  <link name="world">
+    <inertial>
+      <mass value="1e-3"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/>
+    </inertial>
+  </link>
+
+  <!-- world → WAM-V fixed joint (start at waterline, z≈0) -->
+  <joint name="world_to_wamv" type="fixed">
+    <parent link="world"/>
+    <child link="${namespace}/base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Mount KUKA on WAM-V deck (rear center) -->
+  <joint name="wamv_to_kuka_mount" type="fixed">
+    <parent link="${namespace}/base_link"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 1.3" rpy="0 0 0"/>
+  </joint>
+
+  <!-- KUKA links carry their own mass (~2650 kg total), added to vessel's 180 kg -->
+  <!-- Total ≈ 2830 kg — DART handles this as a composite rigid body -->
+
+  <!-- ════════════════════════════════════════════════════════════════
+       PART 4: VRX Dynamics — surface buoyancy, hydrodynamics & wind
+       
+       These plugins must be embedded in the URDF so Gazebo applies
+       wave‑driven buoyancy and drag forces to the vessel base_link.
+       ════════════════════════════════════════════════════════════════ -->
+  <gazebo>
+    <!-- Left hull buoyancy / wave interaction -->
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.6 1.03 0</point>
+        <point>-1.4 1.03 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave>
+          <model>PMS</model>
+          <amplitude>1.6</amplitude>
+          <period>7.0</period>
+          <gain>0.7</gain>
+          <steepness>0.5</steepness>
+          <number>5</number>
+          <scale>1.3</scale>
+          <angle>0.3</angle>
+          <tau>2.0</tau>
+        </wave>
+      </wavefield>
+    </plugin>
+
+    <!-- Right hull buoyancy / wave interaction -->
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>${namespace}/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.6 -1.03 0</point>
+        <point>-1.4 -1.03 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave>
+          <model>PMS</model>
+          <amplitude>1.6</amplitude>
+          <period>7.0</period>
+          <gain>0.7</gain>
+          <steepness>0.5</steepness>
+          <number>5</number>
+          <scale>1.3</scale>
+          <angle>0.3</angle>
+          <tau>2.0</tau>
+        </wave>
+      </wavefield>
+    </plugin>
+
+    <!-- Hydrodynamic drag -->
+    <plugin filename="libSimpleHydrodynamics.so" name="vrx::SimpleHydrodynamics">
+      <link_name>${namespace}/base_link</link_name>
+      <xDotU>0.0</xDotU>
+      <yDotV>0.0</yDotV>
+      <nDotR>0.0</nDotR>
+      <xU>100.0</xU>
+      <xUU>150.0</xUU>
+      <yV>100.0</yV>
+      <yVV>100.0</yVV>
+      <zW>500.0</zW>
+      <kP>300.0</kP>
+      <kPP>600.0</kPP>
+      <mQ>900.0</mQ>
+      <mQQ>900.0</mQQ>
+      <nR>800.0</nR>
+      <nRR>800.0</nRR>
+    </plugin>
+
+    <!-- Wind force plugin -->
+    <plugin filename="libUSVWind.so" name="vrx::USVWind">
+      <wind_obj>
+        <name>wamv_kuka_platform</name>
+        <link_name>${namespace}/base_link</link_name>
+        <coeff_vector>0.5 0.5 0.33</coeff_vector>
+      </wind_obj>
+      <wind_direction>240</wind_direction>
+      <wind_mean_velocity>12.0</wind_mean_velocity>
+      <var_wind_gain_constants>0.5</var_wind_gain_constants>
+      <var_wind_time_constants>2</var_wind_time_constants>
+      <random_seed>10</random_seed>
+      <update_rate>10</update_rate>
+      <topic_wind_speed>/vrx/debug/wind/speed</topic_wind_speed>
+      <topic_wind_direction>/vrx/debug/wind/direction</topic_wind_direction>
+    </plugin>
+  </gazebo>
+
+</robot>

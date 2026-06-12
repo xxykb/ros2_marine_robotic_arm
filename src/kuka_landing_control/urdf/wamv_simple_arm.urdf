@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<robot name="wamv">
+  <link name="world"/>
+  <joint name="world_to_wamv" type="fixed">
+    <parent link="world"/>
+    <child link="wamv/base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+<link name="wamv/base_link">
+    <visual>
+      <geometry>
+        <mesh filename="/home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V-Base.dae"/>
+      </geometry>
+    </visual>
+    <!-- Collisions removed: buoyancy handled by Surface plugin directly -->
+    <inertial>
+      <mass value="180.0"/>
+      <inertia ixx="120" ixy="0" ixz="0" iyy="393" iyz="0" izz="446"/>
+    </inertial>
+  
+    <visual name="arm_base_vis">
+      
+      <origin rpy="0 0 0" xyz="0.00 0.00 1.40"/>
+      <geometry>
+        <box size="0.3 0.3 0.2"/>
+      </geometry>
+      <material name="orange">
+        <color rgba="1 0.5 0 1"/>
+      </material>
+    
+    </visual>
+    <visual name="arm_shoulder_vis">
+      
+      <origin rpy="0 0 0" xyz="0.00 0.00 1.50"/>
+      <geometry>
+        <cylinder length="0.4" radius="0.06"/>
+      </geometry>
+      <material name="yellow">
+        <color rgba="1 1 0 1"/>
+      </material>
+    
+    </visual>
+    <visual name="arm_elbow_vis">
+      
+      <origin rpy="0 0 0" xyz="0.00 0.00 1.45"/>
+      <geometry>
+        <cylinder length="0.3" radius="0.04"/>
+      </geometry>
+      <material name="red">
+        <color rgba="1 0 0 1"/>
+      </material>
+    
+    </visual>
+    <visual name="arm_tip_vis">
+      <origin xyz="0 0 1.3" rpy="0 0 0"/>
+        
+      <geometry>
+        <sphere radius="0.03"/>
+      </geometry>
+      <material name="green">
+        <color rgba="0 1 0 1"/>
+      </material>
+    
+    </visual>
+  </link>
+<gazebo reference="wamv/base_link">
+    <enable_wind>true</enable_wind>
+    <visual>
+      <material>
+        <pbr>
+          <metal>
+            <albedo_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Albedo.png</albedo_map>
+            <normal_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Normal.png</normal_map>
+            <roughness_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Roughness.png</roughness_map>
+            <metalness_map>file:///home/ykb/ros2_marine_robotic_arm/install/wamv_description/share/wamv_description/models/WAM-V-Base/mesh/WAM-V_Metalness.png</metalness_map>
+          </metal>
+        </pbr>
+      </material>
+    </visual>
+  </gazebo>
+<gazebo>
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>wamv/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.6 1.03 0</point>
+        <point>-1.4 1.03 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave>
+          <model>PMS</model>
+          <amplitude>0.5</amplitude>
+          <period>7.0</period>
+          <gain>0.7</gain>
+          <steepness>0.5</steepness>
+          <number>3</number>
+          <scale>1.3</scale>
+          <angle>0.3</angle>
+          <tau>0.001</tau>
+        </wave>
+      </wavefield>
+    </plugin>
+    <plugin filename="libSurface.so" name="vrx::Surface">
+      <link_name>wamv/base_link</link_name>
+      <hull_length>4.9</hull_length>
+      <hull_radius>0.213</hull_radius>
+      <fluid_level>0</fluid_level>
+      <points>
+        <point>0.6 -1.03 0</point>
+        <point>-1.4 -1.03 0</point>
+      </points>
+      <wavefield>
+        <topic>/vrx/wavefield/parameters</topic>
+        <wave>
+          <model>PMS</model>
+          <amplitude>0.5</amplitude>
+          <period>7.0</period>
+          <gain>0.7</gain>
+          <steepness>0.5</steepness>
+          <number>3</number>
+          <scale>1.3</scale>
+          <angle>0.3</angle>
+          <tau>0.001</tau>
+        </wave>
+      </wavefield>
+    </plugin>
+    <!-- Hydrodynamics plugin disabled for debugging -->
+    <!-- Wind plugin disabled for debugging -->
+  </gazebo>
+</robot>
