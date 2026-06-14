@@ -3,52 +3,80 @@
   <xacro:arg name="namespace" default="wamv"/>
   <xacro:property name="namespace" value="$(arg namespace)" scope="global"/>
 
-  <xacro:property name="wamv_mesh" value="$(find wamv_description)/models/WAM-V-Base/mesh/WAM-V-Base.dae"/>
-  <xacro:property name="tex_dir" value="$(find wamv_description)/models/WAM-V-Base/mesh"/>
-
+  <!-- ================================================================
+       12-m Workboat - simplified monohull (box primitives)
+       Displacement ~2500 kg, LxBxD ~ 12m x 4m x 2.4m (hull+deckhouse)
+       ================================================================ -->
   <link name="${namespace}/base_link">
-    <visual>
-      <geometry><mesh filename="${wamv_mesh}"/></geometry>
+    <!-- ***** Visual: multi-box workboat ***** -->
+    <visual name="hull">
+      <pose>0 0 0.1 0 0 0</pose>
+      <geometry><box size="10.5 3.8 1.5"/></geometry>
+      <material name="hull_grey">
+        <color rgba="0.25 0.30 0.38 1.0"/>
+      </material>
     </visual>
-    <!-- Collisions removed: buoyancy handled by Surface plugin directly -->
+    <visual name="deck">
+      <pose>0.5 0 0.85 0 0 0</pose>
+      <geometry><box size="7.5 3.5 0.15"/></geometry>
+      <material name="deck_dark">
+        <color rgba="0.35 0.35 0.35 1.0"/>
+      </material>
+    </visual>
+    <visual name="deck_house">
+      <pose>-1.0 0 1.85 0 0 0</pose>
+      <geometry><box size="5.0 3.0 1.85"/></geometry>
+      <material name="house_white">
+        <color rgba="0.88 0.88 0.90 1.0"/>
+      </material>
+    </visual>
+    <visual name="wheelhouse">
+      <pose>-2.0 0 3.05 0 0 0</pose>
+      <geometry><box size="2.8 2.0 2.2"/></geometry>
+      <material name="wheelhouse_lt">
+        <color rgba="0.78 0.80 0.84 1.0"/>
+      </material>
+    </visual>
+
+    <!-- ***** Inertial: 2500 kg, box-approx 12x4x1.5m ***** -->
     <inertial>
-      <mass value="180.0"/>
-      <inertia ixx="120" ixy="0" ixz="0" iyy="393" iyz="0" izz="446"/>
+      <mass value="2500.0"/>
+      <inertia ixx="4000" ixy="0" ixz="0" iyy="31000" iyz="0" izz="34000"/>
     </inertial>
   </link>
 
   <gazebo reference="${namespace}/base_link">
     <enable_wind>true</enable_wind>
-    <visual>
-      <material><pbr><metal>
-        <albedo_map>file://${tex_dir}/WAM-V_Albedo.png</albedo_map>
-        <normal_map>file://${tex_dir}/WAM-V_Normal.png</normal_map>
-        <roughness_map>file://${tex_dir}/WAM-V_Roughness.png</roughness_map>
-        <metalness_map>file://${tex_dir}/WAM-V_Metalness.png</metalness_map>
-      </metal></pbr></material>
-    </visual>
   </gazebo>
 
+  <!-- ================================================================
+       Surface buoyancy - twin plugin instances for monohull
+       hull_length: 10.0 m  (waterline length)
+       hull_radius: 0.60 m  (hull cross-section radius)
+       half-beam:   1.80 m  (y coordinate of buoyancy points)
+       ================================================================ -->
   <gazebo>
+    <!-- Port-side buoyancy points -->
     <plugin filename="libSurface.so" name="vrx::Surface">
       <link_name>${namespace}/base_link</link_name>
-      <hull_length>4.9</hull_length><hull_radius>0.213</hull_radius><fluid_level>0</fluid_level>
-      <points><point>0.6 1.03 0</point><point>-1.4 1.03 0</point></points>
+      <hull_length>10.0</hull_length><hull_radius>0.60</hull_radius><fluid_level>0</fluid_level>
+      <points><point>3.5 1.80 -0.5</point><point>-3.5 1.80 -0.5</point></points>
       <wavefield>
         <topic>/vrx/wavefield/parameters</topic>
         <wave><model>PMS</model><amplitude>0.5</amplitude><period>7.0</period><gain>0.7</gain><steepness>0.5</steepness><number>3</number><scale>1.3</scale><angle>0.3</angle><tau>0.001</tau></wave>
       </wavefield>
     </plugin>
+
+    <!-- Starboard-side buoyancy points -->
     <plugin filename="libSurface.so" name="vrx::Surface">
       <link_name>${namespace}/base_link</link_name>
-      <hull_length>4.9</hull_length><hull_radius>0.213</hull_radius><fluid_level>0</fluid_level>
-      <points><point>0.6 -1.03 0</point><point>-1.4 -1.03 0</point></points>
+      <hull_length>10.0</hull_length><hull_radius>0.60</hull_radius><fluid_level>0</fluid_level>
+      <points><point>3.5 -1.80 -0.5</point><point>-3.5 -1.80 -0.5</point></points>
       <wavefield>
         <topic>/vrx/wavefield/parameters</topic>
         <wave><model>PMS</model><amplitude>0.5</amplitude><period>7.0</period><gain>0.7</gain><steepness>0.5</steepness><number>3</number><scale>1.3</scale><angle>0.3</angle><tau>0.001</tau></wave>
       </wavefield>
     </plugin>
-    <!-- Hydrodynamics plugin disabled for debugging -->
-    <!-- Wind plugin disabled for debugging -->
+    <!-- Hydrodynamics + Wind plugins disabled for debugging -->
   </gazebo>
 </robot>

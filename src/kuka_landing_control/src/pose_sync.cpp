@@ -15,7 +15,7 @@
 static const std::string kWorldName = "marine_world";
 static const std::string kWamvModel = "wamv";
 static const std::string kKukaModel = "kuka_kr600";
-static const gz::math::Pose3d kDeckOffset(0, 0, 1.16, 0, 0, 0);
+static const gz::math::Pose3d kDeckOffset(0, 0, 1.0, 0, 0, 0);
 
 int main(int argc, char** argv) {
   (void)argc; (void)argv;

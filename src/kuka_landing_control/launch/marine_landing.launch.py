@@ -81,7 +81,7 @@ def generate_launch_description():
     spawn_kuka = Node(package="ros_gz_sim", executable="create",
                       arguments=["-topic", "/kuka_gz/robot_description", "-name", "kuka_kr600",
                                  "-allow_renaming",
-                                 "-x", "0", "-y", "0", "-z", "1.16"],
+                                 "-x", "0", "-y", "0", "-z", "1.0"],
                       output="screen")
 
     # ── Pose sync: keeps KUKA locked to WAM-V deck ──
